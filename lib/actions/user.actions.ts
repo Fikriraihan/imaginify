@@ -9,6 +9,8 @@ import { handleError } from "../utils";
 // CREATE
 export async function createUser(user: CreateUserParams) {
   try {
+    console.log(user);
+
     await connectToDatabase();
 
     const newUser = await User.create(user);
@@ -19,6 +21,22 @@ export async function createUser(user: CreateUserParams) {
   }
 }
 
+export async function createUser2(formData: FormData) {
+  try {
+    await connectToDatabase();
+    const { clerkId, email, username, firstName, lastName, photo } = Object.fromEntries(formData);
+    const newUser = await User.create({
+      clerkId,
+      email,
+      username,
+      firstName,
+      lastName,
+      photo,
+    });
+  } catch (error) {
+    handleError(error);
+  }
+}
 // READ
 export async function getUserById(userId: string) {
   try {
