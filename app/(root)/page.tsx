@@ -1,55 +1,34 @@
-import { createUser, createUser2 } from "@/lib/actions/user.actions";
-import User from "@/lib/database/models/user.model";
-import { connectToDatabase } from "@/lib/database/mongoose";
-import { UserButton } from "@clerk/nextjs";
-import { unstable_noStore } from "next/cache";
+import { Collection } from "@/components/shared/Collection";
+import { navLinks } from "@/constants";
+import { getAllImages } from "@/lib/actions/image.actions";
+import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
-const getData = async () => {
-  unstable_noStore();
-  try {
-    await connectToDatabase();
-    const data = await User.find();
-    return data;
-  } catch (error) {
-    return error;
-  }
-};
+const Home = async ({ searchParams }: SearchParamProps) => {
+  const page = Number(searchParams?.page) || 1;
+  const searchQuery = (searchParams?.query as string) || "";
 
-const Home = async () => {
-  const data: any = await getData();
-
+  const images = await getAllImages({ page, searchQuery });
   return (
-    <div>
-      <h1>{data.map((val: any) => val.firstName)}</h1>
-      <form action={createUser2}>
-        <div>
-          <h1>ClerkId</h1>
-          <input className="border" name="clerkId" type="text" />
-        </div>
-        <div>
-          <h1>Email</h1>
-          <input className="border" name="email" type="text" />
-        </div>
-        <div>
-          <h1>Username</h1>
-          <input className="border" name="username" type="text" />
-        </div>
-        <div>
-          <h1>First Name</h1>
-          <input className="border" name="firstName" type="text" />
-        </div>
-        <div>
-          <h1>Last Name</h1>
-          <input className="border" name="lastName" type="text" />
-        </div>
-        <div>
-          <h1>Photo</h1>
-          <input className="border" name="photo" type="text" />
-        </div>
-        <button type="submit">Create</button>
-      </form>
-    </div>
+    <>
+      <section className="home">
+        <h1 className="home-heading">Unleash Your Creative Vision with Imaginify</h1>
+        <ul className="flex-center w-full gap-20">
+          {navLinks.slice(1, 5).map((link) => (
+            <Link key={link.route} href={link.route} className="flex-center flex-col gap-2">
+              <li className="flex-center w-fit rounded-full bg-white p-4">
+                <Image src={link.icon} alt="image" width={24} height={24} />
+              </li>
+              <p className="p-14-medium text-center text-white">{link.label}</p>
+            </Link>
+          ))}
+        </ul>
+      </section>
+      <section className="sm:mt-12">
+        <Collection images={images?.data} totalPages={images?.totalPage} page={page} hasSearch={true} />
+      </section>
+    </>
   );
 };
 
